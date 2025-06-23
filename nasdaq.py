@@ -1,4 +1,12 @@
+import logging
 import yfinance as yf
+
+# Configure a simple logger for this script
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 TOP_10_TICKERS = [
     "AAPL",  # Apple Inc.
@@ -14,6 +22,11 @@ TOP_10_TICKERS = [
 ]
 
 
+def log_exception(symbol: str, exc: Exception) -> None:
+    """Log an exception that occurred while fetching the ticker data."""
+    logger.warning("Could not retrieve data for %s: %s", symbol, exc)
+
+
 def get_latest_prices(tickers):
     """Return a dict of the latest stock prices for the given tickers."""
     prices = {}
@@ -23,7 +36,8 @@ def get_latest_prices(tickers):
             info = ticker.fast_info
             price = info.get("last_price")
             prices[symbol] = price
-        except Exception:
+        except Exception as exc:
+            log_exception(symbol, exc)
             prices[symbol] = None
     return prices
 
