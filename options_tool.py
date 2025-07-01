@@ -88,6 +88,12 @@ def detect_signals(df):
         'breakout' if abs(return_percent) > BREAKOUT_THRESHOLD else 'none'
     )
 
+    # `ta` expects a 1D Series; squeeze in case we have a single-column DataFrame
+    if isinstance(close, pd.DataFrame):
+        close = close.squeeze()
+    df['rsi']     = ta.momentum.RSIIndicator(close, window=RSI_PERIOD).rsi()
+    df['returns'] = close.pct_change() * 100
+    latest = df.iloc[-1]
     return {
         'price': price,
         'rsi_value': rsi_value,
