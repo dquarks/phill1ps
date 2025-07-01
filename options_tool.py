@@ -63,6 +63,31 @@ def filter_options(chain_df, price):
 def detect_signals(df):
     import ta
     close = df['Close']
+    # `ta` expects a Series. If `Close` comes back as a single-column DataFrame
+    # squeeze it to 1D before passing to the indicator
+    if isinstance(close, pd.DataFrame):
+        close = close.squeeze()
+
+    rsi_series = ta.momentum.RSIIndicator(close, window=RSI_PERIOD).rsi()
+    returns_series = close.pct_change() * 100
+
+    df['rsi'] = rsi_series
+    df['returns'] = returns_series
+
+    # Grab scalar values to avoid evaluating pandas objects in a boolean context
+    rsi_value = float(rsi_series.iloc[-1])
+    return_percent = float(returns_series.iloc[-1])
+    price = float(close.iloc[-1])
+
+    rsi_signal = (
+        'buy' if rsi_value < RSI_OVERSOLD
+        else 'sell' if rsi_value > RSI_OVERBOUGHT
+        else 'neutral'
+    )
+    breakout_signal = (
+        'breakout' if abs(return_percent) > BREAKOUT_THRESHOLD else 'none'
+    )
+
     # `ta` expects a 1D Series; squeeze in case we have a single-column DataFrame
     if isinstance(close, pd.DataFrame):
         close = close.squeeze()
@@ -70,11 +95,11 @@ def detect_signals(df):
     df['returns'] = close.pct_change() * 100
     latest = df.iloc[-1]
     return {
-        'price'          : latest['Close'],
-        'rsi_value'      : latest['rsi'],
-        'return_percent' : latest['returns'],
-        'rsi_signal'     : 'buy' if latest['rsi'] < RSI_OVERSOLD else 'sell' if latest['rsi'] > RSI_OVERBOUGHT else 'neutral',
-        'breakout_signal': 'breakout' if abs(latest['returns']) > BREAKOUT_THRESHOLD else 'none'
+        'price': price,
+        'rsi_value': rsi_value,
+        'return_percent': return_percent,
+        'rsi_signal': rsi_signal,
+        'breakout_signal': breakout_signal,
     }
 
 # Print alerts
