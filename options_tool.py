@@ -3,8 +3,7 @@
 
 import yfinance as yf
 import pandas as pd
-import schedule
-import time
+
 from datetime import datetime
 
 # Define tech tickers
@@ -105,12 +104,6 @@ def run_trading_scan():
     for ticker in TECH_TICKERS:
         analyze_ticker(ticker)
 
-# Schedule every 15 minutes during market hours
-schedule.every(15).minutes.do(run_trading_scan)
-
 if __name__ == "__main__":
     print("Starting 0-1 DTE Options Signal Tool...")
     run_trading_scan()
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
