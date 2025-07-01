@@ -62,8 +62,12 @@ def filter_options(chain_df, price):
 # Detect RSI & breakout signals
 def detect_signals(df):
     import ta
-    df['rsi']     = ta.momentum.RSIIndicator(df['Close'], window=RSI_PERIOD).rsi()
-    df['returns'] = df['Close'].pct_change() * 100
+    close = df['Close']
+    # `ta` expects a 1D Series; squeeze in case we have a single-column DataFrame
+    if isinstance(close, pd.DataFrame):
+        close = close.squeeze()
+    df['rsi']     = ta.momentum.RSIIndicator(close, window=RSI_PERIOD).rsi()
+    df['returns'] = close.pct_change() * 100
     latest = df.iloc[-1]
     return {
         'price'          : latest['Close'],
