@@ -3,6 +3,16 @@
 
 import yfinance as yf
 import pandas as pd
+import warnings
+
+# Suppress the auto_adjust FutureWarning in case older versions of yfinance
+# are installed. We explicitly set auto_adjust below, so the warning is
+# redundant.
+warnings.filterwarnings(
+    "ignore",
+    category=FutureWarning,
+    message="YF.download() has changed argument auto_adjust default",
+)
 
 from datetime import datetime
 
