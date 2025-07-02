@@ -3,6 +3,16 @@
 
 import yfinance as yf
 import pandas as pd
+import warnings
+
+# Suppress the auto_adjust FutureWarning in case older versions of yfinance
+# are installed. We explicitly set auto_adjust below, so the warning is
+# redundant.
+warnings.filterwarnings(
+    "ignore",
+    category=FutureWarning,
+    message="YF.download() has changed argument auto_adjust default",
+)
 
 from datetime import datetime
 
@@ -23,7 +33,15 @@ MIN_IV = 0.5               # minimum implied volatility (50%)
 
 # Fetch 5-minute intraday data
 def fetch_intraday_data(ticker):
-    data = yf.download(ticker, period="1d", interval="5m", progress=False)
+    # Explicitly set auto_adjust to False to avoid FutureWarning in newer
+    # yfinance versions where the default has changed to True.
+    data = yf.download(
+        ticker,
+        period="1d",
+        interval="5m",
+        progress=False,
+        auto_adjust=False,
+    )
     return data
 
 # Fetch options chain for expirations within 0-1 DTE
