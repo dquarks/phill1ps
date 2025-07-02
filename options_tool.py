@@ -17,7 +17,7 @@ warnings.filterwarnings(
 from datetime import datetime
 
 # Define tech tickers
-TECH_TICKERS = ["AAPL", "MSFT", "NVDA", "AMD", "GOOG", "AMZN", "META", "TSLA"]
+TECH_TICKERS = ["NVDA", "AMD", "AMZN", "META", "TSLA"]
 
 # Parameters for signal detection
 RSI_PERIOD = 14
